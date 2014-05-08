@@ -1,0 +1,16 @@
+{
+	"type" : "string",
+	"words" : [
+		"const",
+		"in",
+		"centroid in",
+		"out",
+		"centroid out",
+		"uniform",
+		"attribute",
+		"varying",
+		"smooth",
+		"flat"
+	]
+}
+

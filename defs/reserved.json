@@ -1,0 +1,14 @@
+{
+	"type" : "string",
+	"words" : [
+		"for",
+		"break",
+		"while",
+		"continue",
+		"do",
+		"switch",
+		"return",
+		"discard"
+	]
+}
+

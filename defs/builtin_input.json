@@ -1,0 +1,11 @@
+{
+	"type" : "string",
+	"words" : [
+		"gl_VertexID",
+		"gl_InstanceID",
+		"gl_FragCoord",
+		"gl_FrontFacing",
+		"gl_PointCoord",
+		"gl_DepthRange"
+	]
+}

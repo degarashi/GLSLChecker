@@ -1,0 +1,71 @@
+{
+	"highlights" : {
+		"comment" : {
+			"italic" : true,
+			"bold" : false,
+			"underline" : false,
+			"color" : [128, 128, 128]
+		},
+		"value" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"predef_macro" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"preprocessor" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"storage_qualifier" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"param_qualifier" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"precision_qualifier" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"reserved" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"builtin_input" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"builtin_output" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		},
+		"builtin_function" : {
+			"italic" : false,
+			"bold" : false,
+			"underline" : false,
+			"color" : [0, 0, 255]
+		}
+	}
+}
+

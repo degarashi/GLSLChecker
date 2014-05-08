@@ -1,0 +1,11 @@
+{
+	"type" : "string",
+	"words" : [
+		"in",
+		"out",
+		"inout",
+		"layout",
+		"location"
+	]
+}
+

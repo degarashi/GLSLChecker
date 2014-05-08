@@ -1,0 +1,19 @@
+{
+	"type" : "regex",
+	"words" : [
+		"#\\s*version\\s+[\\w\\d]+",
+		"#\\s*define",
+		"#\\s*undef",
+		"#\\s*if",
+		"#\\s*ifdef",
+		"#\\s*ifndef",
+		"#\\s*else",
+		"#\\s*elif",
+		"#\\s*endif",
+		"#\\s*error",
+		"#\\s*pragma",
+		"#\\s*extension",
+		"#\\s*line"
+	]
+}
+

@@ -1,0 +1,10 @@
+{
+	"type" : "string",
+	"words" : [
+		"gl_Position",
+		"gl_PointSize",
+		"gl_FragDepth",
+		"gl_FragData",
+		"gl_FragColor"
+	]
+}

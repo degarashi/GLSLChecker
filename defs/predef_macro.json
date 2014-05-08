@@ -1,0 +1,10 @@
+{
+	"type" : "string",
+	"words" : [
+		"__LINE__",
+		"__FILE__",
+		"__VERSION__",
+		"GL_ES"
+	]
+}
+

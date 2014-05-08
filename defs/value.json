@@ -1,0 +1,12 @@
+{
+	"type" : "regex",
+	"words" : [
+		"void",
+		"bool",
+		"u?int",
+		"float",
+		"(b|i|u)?vec[2|3|4]",
+		"mat[234](x[234])?"
+	]
+}
+
