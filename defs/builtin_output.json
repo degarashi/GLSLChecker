@@ -1,5 +1,7 @@
 {
 	"type" : "string",
+	"case_sensitive" : true,
+	"auto_spacing" : true,
 	"words" : [
 		"gl_Position",
 		"gl_PointSize",

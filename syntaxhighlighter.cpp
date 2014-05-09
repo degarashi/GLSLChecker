@@ -5,32 +5,59 @@
 #include <QDir>
 #include "syntaxhighlighter.h"
 
+#define DEF_STRING(str)	const QString str = #str;
+// JSONファイルのエントリ文字列
+namespace JEnt {
+	// キーワード定義ファイルで使用
+	namespace Keyword {
+		DEF_STRING(type)
+		DEF_STRING(string)
+		DEF_STRING(regex)
+		DEF_STRING(case_sensitive)
+		DEF_STRING(auto_spacing)
+		DEF_STRING(words)
+	}
+	// ハイライト定義ファイルで使用
+	namespace Highlight {
+		DEF_STRING(highlights)
+		DEF_STRING(italic)
+		DEF_STRING(bold)
+		DEF_STRING(underline)
+		DEF_STRING(color)
+	}
+	// ハイライト定義における"コメント"用エントリ名
+	const std::string comment("comment");
+}
+#undef DEF_STRING
+
 namespace glsl {
 	// ------------------ SyntaxHighlighter ------------------
 	SyntaxHighlighter::TextFormat::TextFormat(const QJsonObject& o) {
 		loadFromJson(o);
 	}
 	void SyntaxHighlighter::TextFormat::loadFromJson(const QJsonObject& o) {
-		auto itr = o.find("italic");
+		namespace Highlight = JEnt::Highlight;
+		// Italicフラグ: デフォルト値=false
+		auto itr = o.find(Highlight::italic);
 		bool b = false;
 		if(itr != o.end())
 			b = itr.value().toBool(false);
 		setFontItalic(b);
-
+		// Boldフラグ: デフォルト値=QFont::Normal
 		int w = QFont::Normal;
-		itr = o.find("bold");
+		itr = o.find(Highlight::bold);
 		if(itr != o.end())
 			w = itr.value().toBool(false) ? QFont::Bold : QFont::Normal;
 		setFontWeight(w);
-
+		// Underlineフラグ: デフォルト値=false
 		b = false;
-		itr = o.find("underline");
+		itr = o.find(Highlight::underline);
 		if(itr != o.end())
 			b = itr.value().toBool(false);
 		setFontUnderline(b);
-
+		// Color RGB: デフォルト値=(128,128,128)
 		QColor col(128,128,128);
-		itr = o.find("color");
+		itr = o.find(Highlight::color);
 		if(itr != o.end()) {
 			QJsonArray ar = itr.value().toArray();
 			if(ar.size() == 3)
@@ -42,17 +69,33 @@ namespace glsl {
 		loadFromJson(o);
 	}
 	void SyntaxHighlighter::Keywords::loadFromJson(const QJsonObject& o) {
+		namespace Keyword = JEnt::Keyword;
 		_strV.clear();
 		_regV.clear();
-		QString strType = o.value("type").toString("string");
-		bool bIsRegex = strType == "regex";
-		QJsonArray ar = o.value("words").toArray();
+		// AutoSpacingフラグ: デフォルト値=false
+		bool b = false;
+		auto itr = o.find(Keyword::auto_spacing);
+		if(itr != o.end())
+			b = itr.value().toBool(false);
+		_bAutoSpacing = b;
+		// CaseSensitiveフラグ: デフォルト値=false
+		b = false;
+		itr = o.find(Keyword::case_sensitive);
+		if(itr != o.end())
+			b = itr.value().toBool(false);
+		_bCaseSensitive = b;
+		// String or RegEx: デフォルト値=string
+		QString strType = o.value(Keyword::type).toString(Keyword::string);
+		bool bIsRegex = strType == Keyword::regex;
+
+		QJsonArray ar = o.value(Keyword::words).toArray();
 		for(const auto& w : ar) {
 			QString word = w.toString();
 			if(!word.isEmpty()) {
 				if(bIsRegex) {
 					// 正規表現によるキーワード指定
-					_regV.emplace_back(word);
+					_regV.emplace_back(word,
+									   _bCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
 				} else {
 					// 文字列によるキーワード指定
 					_strV.emplace_back(word);
@@ -78,12 +121,12 @@ namespace glsl {
 			Normal,
 			InCommentBlock
 		};
-		auto& fmt_comment = _getFormat("comment");
+		auto& fmt_comment = _getFormat(JEnt::comment);
 		int length = text.length();
 		QString startMark("/*"),
 				endMark("*/"),
 				lineMark("//");
-		QRegExp keywordRE("[#a-zA-Z0-9_]+");
+		QRegExp keywordRE("[^/*]+");
 		SyntaxState state = (previousBlockState() == 1) ?
 								SyntaxState::InCommentBlock :
 								SyntaxState::Normal;
@@ -163,6 +206,7 @@ namespace glsl {
 		}
 	}
 	namespace {
+		//! 文字列中のキーワードをRegExかStringのいづれかの形式で探す
 		struct KeywordMatch {
 			static int Length(const QRegExp& r) { return r.matchedLength(); }
 			static int Length(const QString& s) { return s.length(); }
@@ -170,36 +214,61 @@ namespace glsl {
 			static QString String(const QRegExp& r) { return r.pattern(); }
 
 			const QString&	_text;
-			int				_baseOffset,
+			int				_baseOffset,	//!< 検索開始オフセット
 							_offset,
 							_length;
-			KeywordMatch(const QString& text, int ofs):
-				_text(text), _baseOffset(ofs), _offset(text.length()), _length(-1)
+			bool			_bCaseSensitive,
+							_bAutoSpacing;
+			/*! \param[in] text			検索対象のテキスト
+				\param[in] ofs			検索開始する位置
+				\param[in] autospace	キーワードの両側が非wordと仮定するか	*/
+			KeywordMatch(const QString& text, int ofs, bool bCase, bool bAutoSpace):
+				_text(text),
+				_baseOffset(ofs),
+				_offset(text.length()),
+				_length(-1),
+				_bCaseSensitive(bCase),
+				_bAutoSpacing(bAutoSpace)
 			{}
+			int _indexOf(const QRegExp& r) const {
+				return _text.indexOf(const_cast<QRegExp&>(r), _baseOffset);
+			}
+			int _indexOf(const QString& str) const {
+				// case_sensitiveフラグが立っているならここで指定
+				return _text.indexOf(str,
+									_baseOffset,
+									_bCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive);
+			}
 
 			template <class T>
 			void proc(const T& t) {
-				int idx = _text.indexOf(const_cast<T&>(t), _baseOffset);
+				int idx = _indexOf(t);
 				if(idx >= 0) {
 					int len = Length(t);
-					if((idx + len >= _text.length() ||
-						!_text.at(idx+len).isLetterOrNumber()) &&
-						(idx == 0 || !_text.at(idx-1).isLetterOrNumber()))
-					{
-						if(_offset > idx) {
-							_offset = idx;
+					// auto_spacingフラグが立っている時はキーワードの両側が非wordかをチェック
+					if(_bAutoSpacing) {
+						if((idx + len >= _text.length() ||
+							!_text.at(idx+len).isLetterOrNumber()) &&
+							(idx == 0 || !_text.at(idx-1).isLetterOrNumber()))
+						{} else
+							return;
+					}
+					// 前回より検出位置が手前なら結果を上書き
+					if(_offset > idx) {
+						_offset = idx;
+						_length = len;
+					}
+					// 前回と位置が同じならキーワード長が長い方を採用
+					else if(_offset == idx) {
+						if(_length < len)
 							_length = len;
-						} else if(_offset == idx) {
-							if(_length < len)
-								_length = len;
-						}
 					}
 				}
 			}
 		};
 	}
 	std::pair<int,int> SyntaxHighlighter::Keywords::match(const QString& text, int offset) const {
-		KeywordMatch m(text, offset);
+		KeywordMatch m(text, offset, _bCaseSensitive, _bAutoSpacing);
 		for(auto& k : _strV)
 			m.proc(k);
 		for(auto& r : _regV)
@@ -239,7 +308,7 @@ namespace glsl {
 		QJsonDocument doc = _LoadJson(path);
 		_formatMap.clear();
 		QJsonObject root = doc.object();
-		auto itr = root.find("highlights");
+		auto itr = root.find(JEnt::Highlight::highlights);
 		if(itr != root.end()) {
 			QJsonObject ent = itr.value().toObject();
 			for(auto itr2 = ent.begin() ; itr2 != ent.end() ; itr2++)

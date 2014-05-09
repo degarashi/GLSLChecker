@@ -1,5 +1,7 @@
 {
 	"type" : "regex",
+	"case_sensitive" : true,
+	"auto_spacing" : true,
 	"words" : [
 		"#\\s*version\\s+[\\w\\d]+",
 		"#\\s*define",

@@ -65,6 +65,12 @@
 			"bold" : false,
 			"underline" : false,
 			"color" : [0, 0, 255]
+		},
+		"number" : {
+			"italic" : true,
+			"bold" : false,
+			"underline" : false,
+			"color" : [160, 128, 128]
 		}
 	}
 }

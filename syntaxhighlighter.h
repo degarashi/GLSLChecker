@@ -28,6 +28,8 @@ namespace glsl {
 			// StrVかRegVのどちらか片方が使用される
 			StrV	_strV;
 			RegV	_regV;
+			bool	_bCaseSensitive,	//!< 大文字小文字を区別するか
+					_bAutoSpacing;		//!< キーワード前後の非wordを想定するか
 			public:
 				Keywords(const QJsonObject& o);
 				//! JSONで記述されたキーワード定義を読み込む
@@ -36,7 +38,7 @@ namespace glsl {
 				/*! \param[in] text	チェックする文字列
 					\param[in] offset チェック開始するオフセット
 					\return <int: キーワードのオフセット(負数は無効), int: キーワード長> */
-				std::pair<int,int>	match(const QString& text, int offset) const;
+				std::pair<int,int> match(const QString& text, int offset) const;
 		};
 
 		//! テキストハイライト定義が存在しない場合のデフォルト値
