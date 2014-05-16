@@ -2,5 +2,5 @@
 *.*~
 *.swp
 .clang_complete
-GLSLChecker.pro.user
-
+*.pro.user
+build_lib

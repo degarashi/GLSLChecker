@@ -5,22 +5,23 @@
 #-------------------------------------------------
 
 QT       += core gui opengl
-
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = GLSLChecker
 TEMPLATE = app
 
-SOURCES += main.cpp\
-	    mainwindow.cpp \
-	    glctxnotify.cpp \
-    syntaxhighlighter.cpp \
-    glsl.cpp
-HEADERS  += mainwindow.h \
-	    glctxnotify.h \
-    syntaxhighlighter.h \
-    glsl.h
-
+INCLUDEPATH += libtinyhl/
+QMAKE_LIBDIR += $$PWD/build_lib
+LIBS += -ltinyhl
+SOURCES += main.cpp \
+	    mainwindow.cpp
+HEADERS  += mainwindow.h
 FORMS    += mainwindow.ui
 
-QMAKE_CXXFLAGS += -std=c++11 -DDEBUG -D_DEBUG
+QMAKE_CXXFLAGS += -std=c++11
+CONFIG(debug, debug|release) {
+    DEFINES += DEBUG _DEBUG
+}
+CONFIG(release, debug|release) {
+    DEFINES += NDEBUG
+}
