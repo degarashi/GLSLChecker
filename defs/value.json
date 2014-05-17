@@ -7,8 +7,12 @@
 		"bool",
 		"u?int",
 		"float",
+		"double",
 		"(b|i|u)?vec[2|3|4]",
-		"mat[234](x[234])?"
+		"d?mat[234](x[234])?",
+		"sampler([12]DShadow|2DRectShadow|[12]DArrayShadow|CubeShadow|CubeArrayShadow)",
+		"((i|u)?sampler|(i|u)?image)([123]D|Cube|2DRect|Buffer|2DMS|2DMSArray|CubeArray|[12]DArray)",
+		"atomic_uint"
 	]
 }
 

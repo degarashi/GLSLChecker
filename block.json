@@ -1,0 +1,7 @@
+{
+	"comment_line": "//",
+	"comment_begin": "/\\*",
+	"comment_end": "\\*/",
+	"keyword": "[\\w\\.]+"
+}
+

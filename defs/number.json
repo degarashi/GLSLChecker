@@ -3,7 +3,7 @@
 	"case_sensitive" : true,
 	"auto_spacing" : true,
 	"words" : [
-		"(^|[^\\.\\w])\\d+(u|f|lf)?(?!\\.)",
+		"\\d+(u|f|lf)?(?!\\.)",
 		"\\d+\\.\\d+(f|lf)?",
 		"\\d+\\.(f|lf)",
 		"\\.\\d+(f|lf)?"

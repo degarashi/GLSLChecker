@@ -51,8 +51,10 @@ class MainWindow::TabEnt {
 			_savedDoc.reset(te->document()->clone());
 
 			_hl.reset(new glsl::SyntaxHighlighter(te->document()));
-			_hl->loadUserFormat(QApplication::applicationDirPath() + "/usercfg.json");
-			_hl->loadDefine(QApplication::applicationDirPath() + "/defs");
+			auto appPath = QApplication::applicationDirPath();
+			_hl->loadUserFormat(appPath + "/usercfg.json");
+			_hl->loadDefine(appPath + "/defs");
+			_hl->loadBlockDefine(appPath + "/block.json");
 			QObject::connect(te, &QTextEdit::textChanged, [this](){
 				onTextChange();
 			});

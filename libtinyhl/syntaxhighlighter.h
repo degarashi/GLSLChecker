@@ -2,6 +2,7 @@
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <unordered_map>
+#include <memory>
 
 namespace glsl {
 	//! GLSLの各キーワードをハイライトする
@@ -16,8 +17,10 @@ namespace glsl {
 		};
 		//! キーワード定義 (string or regex)
 		/*! JSONフォーマット:
-			"type" : "string" or "regex"
-			"words" : [
+			"type": "string" or "regex",
+			"auto_spacing":	bool,
+			"": bool,
+			"words": [
 				"keyword0",
 				"keyword1", ...
 			]
@@ -40,6 +43,24 @@ namespace glsl {
 					\return <int: キーワードのオフセット(負数は無効), int: キーワード長> */
 				std::pair<int,int> match(const QString& text, int offset) const;
 		};
+		//! コメント・キーワード境界定義(regex)
+		/*! JSONフォーマット(例):
+			"comment_line": "//",
+			"comment_begin": "/\\*",
+			"comment_end": "\\* /",
+			"keyword": "[\\w\\.]+"
+		*/
+		class BlockDef {
+			QRegExp	_cmmLine,
+					_cmmBegin, _cmmEnd,
+					_keyword;
+			public:
+				BlockDef(const QJsonObject& o);
+				QRegExp& getCommentLine();
+				QRegExp& getCommentBegin();
+				QRegExp& getCommentEnd();
+				QRegExp& getKeyword();
+		};
 
 		//! テキストハイライト定義が存在しない場合のデフォルト値
 		QTextCharFormat	_formatDefault;
@@ -49,6 +70,7 @@ namespace glsl {
 
 		using FormatMap = std::unordered_map<std::string, TextFormat>;
 		using KeywordMap = std::unordered_map<std::string, Keywords>;
+		using UPBlockDef = std::unique_ptr<BlockDef>;
 		struct Pair {
 			std::string				keywordName;
 			const QTextCharFormat*	format;
@@ -62,6 +84,7 @@ namespace glsl {
 		KeywordMap		_keywordMap;
 		//! (Format, Keyword)に対し、同じ定義名のエントリをvectorで纏めた物
 		PairV			_pairV;
+		UPBlockDef		_blockDef;
 
 		//! JSONデータをファイルから読み込み、QJsonDocumentにして返す
 		static QJsonDocument _LoadJson(const QString& path);
@@ -73,8 +96,16 @@ namespace glsl {
 		public:
 			using QSyntaxHighlighter::QSyntaxHighlighter;
 			//! テキスト装飾定義を読み込む
+			/*! 装飾する色やフォントなど
+				\param[in] path jsonが置いてあるディレクトリパス */
 			void loadUserFormat(const QString& path);
 			//! キーワード定義を指定パス以下全て読み込む
+			/*! ハイライトする対象のキーワード
+				\param[in] path jsonファイルパス */
 			void loadDefine(const QString& path);
+			//! コメント/キーワード定義を読み込む
+			/*!	コメントブロックやキーワード境界
+				\param[in] path jsonファイルパス */
+			void loadBlockDefine(const QString& path);
 	};
 }

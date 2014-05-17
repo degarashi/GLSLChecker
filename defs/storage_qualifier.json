@@ -5,14 +5,16 @@
 	"words" : [
 		"const",
 		"in",
-		"centroid in",
 		"out",
-		"centroid out",
+		"centroid",
 		"uniform",
 		"attribute",
 		"varying",
 		"smooth",
-		"flat"
+		"flat",
+		"shared",
+		"sampler",
+		"patch"
 	]
 }
 

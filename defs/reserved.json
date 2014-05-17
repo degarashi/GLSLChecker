@@ -9,6 +9,7 @@
 		"continue",
 		"do",
 		"switch",
+		"default",
 		"return",
 		"discard"
 	]

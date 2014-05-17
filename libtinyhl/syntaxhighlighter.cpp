@@ -27,6 +27,13 @@ namespace JEnt {
 	}
 	// ハイライト定義における"コメント"用エントリ名
 	const std::string comment("comment");
+	// コメントブロックとキーワード境界定義ファイルで使用
+	namespace Block {
+		DEF_STRING(comment_line)
+		DEF_STRING(comment_begin)
+		DEF_STRING(comment_end)
+		DEF_STRING(keyword)
+	}
 }
 #undef DEF_STRING
 
@@ -103,8 +110,23 @@ namespace glsl {
 			}
 		}
 	}
+	SyntaxHighlighter::BlockDef::BlockDef(const QJsonObject& o) {
+		namespace Block = JEnt::Block;
+		_cmmLine.setPattern(o.value(Block::comment_line).toString("//"));
+		_cmmBegin.setPattern(o.value(Block::comment_begin).toString("/\\*"));
+		_cmmEnd.setPattern(o.value(Block::comment_end).toString("\\*/"));
+		_keyword.setPattern(o.value(Block::keyword).toString("[\\w\\.]+"));
+	}
+	QRegExp& SyntaxHighlighter::BlockDef::getCommentLine() { return _cmmLine; }
+	QRegExp& SyntaxHighlighter::BlockDef::getCommentBegin() { return _cmmBegin; }
+	QRegExp& SyntaxHighlighter::BlockDef::getCommentEnd() { return _cmmEnd; }
+	QRegExp& SyntaxHighlighter::BlockDef::getKeyword() { return _keyword; }
 
 	void SyntaxHighlighter::highlightBlock(const QString& text) {
+		setCurrentBlockState(0);
+		if(!_blockDef)
+			return;
+
 		enum class TokenType {
 			Keyword,
 			CommentStart,
@@ -123,22 +145,22 @@ namespace glsl {
 		};
 		auto& fmt_comment = _getFormat(JEnt::comment);
 		int length = text.length();
-		QString startMark("/*"),
-				endMark("*/"),
-				lineMark("//");
-		QRegExp keywordRE("[^/*]+");
+
+		QRegExp &startMark = _blockDef->getCommentBegin(),
+				&endMark = _blockDef->getCommentEnd(),
+				&lineMark = _blockDef->getCommentLine(),
+				&keywordRE = _blockDef->getKeyword();
 		SyntaxState state = (previousBlockState() == 1) ?
 								SyntaxState::InCommentBlock :
 								SyntaxState::Normal;
 		int cursor = 0;
-		setCurrentBlockState(0);
 		for(;;) {
 			switch(state) {
 				case SyntaxState::Normal: {
 					Token tokens[static_cast<int>(TokenType::_Num)] = {
 						{text.indexOf(keywordRE, cursor), TokenType::Keyword, keywordRE.matchedLength()},
-						{text.indexOf(startMark, cursor), TokenType::CommentStart, startMark.length()},
-						{text.indexOf(lineMark, cursor), TokenType::CommentLine, lineMark.length()}
+						{text.indexOf(startMark, cursor), TokenType::CommentStart, startMark.matchedLength()},
+						{text.indexOf(lineMark, cursor), TokenType::CommentLine, lineMark.matchedLength()}
 					};
 					for(auto& t : tokens) {
 						if(t.offset < 0)
@@ -192,8 +214,8 @@ namespace glsl {
 					int idx = text.indexOf(endMark, cursor);
 					if(idx >= 0) {
 						// endMarkまでコメントアウト
-						setFormat(cursor, idx+endMark.length() - cursor, fmt_comment);
-						cursor = idx+endMark.length();
+						setFormat(cursor, idx+endMark.matchedLength() - cursor, fmt_comment);
+						cursor = idx+endMark.matchedLength();
 						state = SyntaxState::Normal;
 					} else {
 						// 次の行へコメントが続いている
@@ -330,5 +352,10 @@ namespace glsl {
 			_keywordMap.emplace(fileName.toStdString(), Keywords(_LoadJson(path + '/' + f).object()));
 		}
 		_refreshPairV();
+	}
+	void SyntaxHighlighter::loadBlockDefine(const QString& path) {
+		QJsonDocument doc = _LoadJson(path);
+		QJsonObject root = doc.object();
+		_blockDef.reset(new BlockDef(root));
 	}
 }
