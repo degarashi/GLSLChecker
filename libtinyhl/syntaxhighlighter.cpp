@@ -358,4 +358,5 @@ namespace glsl {
 		QJsonObject root = doc.object();
 		_blockDef.reset(new BlockDef(root));
 	}
+	QTextCharFormat& SyntaxHighlighter::defaultFormat() { return _formatDefault; }
 }

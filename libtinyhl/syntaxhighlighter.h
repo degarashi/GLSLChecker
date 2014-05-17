@@ -107,5 +107,6 @@ namespace glsl {
 			/*!	コメントブロックやキーワード境界
 				\param[in] path jsonファイルパス */
 			void loadBlockDefine(const QString& path);
+			QTextCharFormat& defaultFormat();
 	};
 }

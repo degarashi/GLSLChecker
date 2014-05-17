@@ -55,6 +55,8 @@ class MainWindow::TabEnt {
 			_hl->loadUserFormat(appPath + "/usercfg.json");
 			_hl->loadDefine(appPath + "/defs");
 			_hl->loadBlockDefine(appPath + "/block.json");
+			QTextCharFormat& fmt = _hl->defaultFormat();
+			fmt.setForeground(Qt::darkGreen);
 			QObject::connect(te, &QTextEdit::textChanged, [this](){
 				onTextChange();
 			});
